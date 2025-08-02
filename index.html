@@ -1,74 +1,82 @@
+
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>إنشاء مستخدم جديد</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>API Login and Auth Example</title>
 </head>
 <body>
-  <h2>تسجيل مستخدم جديد</h2>
-  <form id="registerForm">
-    <label>الاسم الأول الثنائي:</label><br />
-    <input type="text" id="firstname" required /><br /><br />
-
-    <label>اسم المستخدم:</label><br />
-    <input type="text" id="username" required /><br /><br />
-
-    <label>نوع الحساب (profile_id):</label><br />
-    <select id="profile_id" required>
-      <option value="7">Silver</option>
-      <option value="8">Gold</option>
-      <option value="9">ALFA</option>
-      <option value="19">Limited-Time</option>
-    </select><br /><br />
-
-    <label>parent_id:</label><br />
-    <input type="number" id="parent_id" required value="44" /><br /><br />
-
-    <button type="submit">إنشاء الحساب</button>
+  <h1>Login to API</h1>
+  <form id="loginForm">
+    <label>
+      Username: <input type="text" id="username" required />
+    </label><br /><br />
+    <label>
+      Password: <input type="password" id="password" required />
+    </label><br /><br />
+    <button type="submit">Login</button>
   </form>
 
-  <p id="responseMsg"></p>
+  <h2>Response:</h2>
+  <pre id="response"></pre>
 
   <script>
-    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+    const loginForm = document.getElementById('loginForm');
+    const responseEl = document.getElementById('response');
+
+    loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
 
-      const data = {
-        firstname: document.getElementById('firstname').value,
-        username: document.getElementById('username').value,
-        profile_id: parseInt(document.getElementById('profile_id').value, 10),
-        parent_id: parseInt(document.getElementById('parent_id').value, 10),
-        enabled: 1
-      };
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+
+      responseEl.textContent = 'Logging in...';
 
       try {
-        const response = await fetch('https://31.223.185.3/admin/api/index.php/api/user', {
+        // 1. إرسال طلب POST لتسجيل الدخول
+        const loginResponse = await fetch('http://31.223.185.3/admin/api/index.php/api/login', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
-            // إذا كان هناك توثيق (Authorization) ضعه هنا
-            'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC8zMS4yMjMuMTg1LjNcL2FkbWluXC9hcGlcL2luZGV4LnBocFwvYXBpXC9sb2dpbiIsImlhdCI6MTc1NDA5NjgxMywiZXhwIjoxNzU0MTgzMjEzLCJuYmYiOjE3NTQwOTY4MTMsImp0aSI6IklNMHJpSWFqbUVnZ0VMd28iLCJzdWIiOjQ0LCJwcnYiOiJkNzk3N2M0N2U5MTY5NjUxMDEwNzM0ZDJmYmY4Y2MxMzlmM2U1MDM0In0.1gBs5kK0rcGf8eWxUCR_uAOYDlT0hcFrbWTRUORX8ic'
+            'Content-Type': 'application/json'
           },
-          body: JSON.stringify(data),
-          //credentials: 'include' // لو يستخدم الكوكيز للتوثيق
+          body: JSON.stringify({ username, password })
         });
 
-        const result = await response.json();
-        if (response.ok && result.status === 200) {
-          document.getElementById('responseMsg').innerText = '✅ تم إنشاء الحساب بنجاح!\nاسم المستخدم: ' + result.data.username;
-        } else {
-          document.getElementById('responseMsg').innerText = '❌ خطأ: ' + (result.message || JSON.stringify(result));
+        if (!loginResponse.ok) {
+          throw new Error(`Login failed: ${loginResponse.status} ${loginResponse.statusText}`);
         }
+
+        const loginData = await loginResponse.json();
+
+        if (!loginData.token) {
+          throw new Error('No token received from login.');
+        }
+
+        responseEl.textContent = 'Login successful. Fetching auth data...';
+
+        // 2. استخدام التوكن في طلب GET إلى /auth
+        const authResponse = await fetch('http://31.223.185.3/admin/api/index.php/api/auth', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${loginData.token}`,
+            'Accept': 'application/json'
+          }
+        });
+
+        if (!authResponse.ok) {
+          throw new Error(`Auth request failed: ${authResponse.status} ${authResponse.statusText}`);
+        }
+
+        const authData = await authResponse.json();
+
+        // 3. عرض البيانات
+        responseEl.textContent = JSON.stringify(authData, null, 2);
+
       } catch (error) {
-  console.error('تفاصيل الخطأ:', error);
-        document.getElementById('responseMsg').innerText = '❌ حدث خطأ في الاتصال.';
+        responseEl.textContent = `Error: ${error.message}`;
       }
     });
   </script>
 </body>
 </html>
-
-
-
-
-
