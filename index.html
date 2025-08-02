@@ -50,7 +50,7 @@
             'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC8zMS4yMjMuMTg1LjNcL2FkbWluXC9hcGlcL2luZGV4LnBocFwvYXBpXC9sb2dpbiIsImlhdCI6MTc1NDA5NjgxMywiZXhwIjoxNzU0MTgzMjEzLCJuYmYiOjE3NTQwOTY4MTMsImp0aSI6IklNMHJpSWFqbUVnZ0VMd28iLCJzdWIiOjQ0LCJwcnYiOiJkNzk3N2M0N2U5MTY5NjUxMDEwNzM0ZDJmYmY4Y2MxMzlmM2U1MDM0In0.1gBs5kK0rcGf8eWxUCR_uAOYDlT0hcFrbWTRUORX8ic'
           },
           body: JSON.stringify(data),
-          credentials: 'include' // لو يستخدم الكوكيز للتوثيق
+          //credentials: 'include' // لو يستخدم الكوكيز للتوثيق
         });
 
         const result = await response.json();
@@ -67,6 +67,7 @@
   </script>
 </body>
 </html>
+
 
 
 
