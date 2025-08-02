@@ -60,9 +60,11 @@
           document.getElementById('responseMsg').innerText = '❌ خطأ: ' + (result.message || JSON.stringify(result));
         }
       } catch (error) {
+  console.error('تفاصيل الخطأ:', error);
         document.getElementById('responseMsg').innerText = '❌ حدث خطأ في الاتصال.';
       }
     });
   </script>
 </body>
 </html>
+
